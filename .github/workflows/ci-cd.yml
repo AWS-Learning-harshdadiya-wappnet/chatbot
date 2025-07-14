@@ -6,7 +6,7 @@ on:
 
 env:
   AWS_REGION: ap-south-1           # 🔄 change to your AWS region
-  ECR_REPO: chatbot-demo
+  ECR_REPO: chatbot
   APP_RUNNER_SERVICE: chatbot-demo-svc
 
 jobs:
