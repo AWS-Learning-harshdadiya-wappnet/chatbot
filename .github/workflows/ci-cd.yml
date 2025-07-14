@@ -1,0 +1,54 @@
+name: Deploy Chatbot to App Runner
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  AWS_REGION: ap-south-1           # 🔄 change to your AWS region
+  ECR_REPO: chatbot-demo
+  APP_RUNNER_SERVICE: chatbot-demo-svc
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write               # GitHub → AWS OIDC
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubOIDCRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          REPO_URI=$(aws ecr describe-repositories \
+                     --repository-names $ECR_REPO \
+                     --query 'repositories[0].repositoryUri' --output text)
+          docker build -t $REPO_URI:$IMAGE_TAG .
+          docker push $REPO_URI:$IMAGE_TAG
+        shell: bash
+
+      - name: Deploy to App Runner
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          REPO_URI=$(aws ecr describe-repositories \
+                     --repository-names $ECR_REPO \
+                     --query 'repositories[0].repositoryUri' --output text)
+          SERVICE_ARN=$(aws apprunner list-services \
+            --query "ServiceSummaryList[?ServiceName=='$APP_RUNNER_SERVICE'].ServiceArn" \
+            --output text)
+          aws apprunner update-service \
+            --service-arn $SERVICE_ARN \
+            --source-configuration ImageRepository={ImageIdentifier=$REPO_URI:$IMAGE_TAG,ImageRepositoryType=ECR},AutoDeploymentsEnabled=true \
+            --instance-configuration "Environment=[{Name=GROQ_API_KEY,Value=${{ secrets.GROQ_API_KEY }}}]"
+
+        shell: bash
