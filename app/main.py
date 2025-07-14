@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os, openai
+import uvicorn
 
 load_dotenv()  # looks for .env when running locally
 
@@ -40,3 +41,12 @@ async def groq_complete(prompt: str) -> str:
 async def chat(req: ChatRequest):
     reply = await groq_complete(req.message)
     return ChatResponse(reply=reply)
+
+
+if __name__ == "__main__": 
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+        log_level="info"
+    )
