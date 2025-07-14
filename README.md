@@ -1,4 +1,4 @@
-# 🧠 Groq‑Powered Chatbot Demo
+# 🧠 Groq‑Powered Chatbot
 
 Tiny FastAPI backend + Streamlit UI, deployed with GitHub Actions → Amazon App Runner.  Uses Groq’s OpenAI‑compatible API.
 
