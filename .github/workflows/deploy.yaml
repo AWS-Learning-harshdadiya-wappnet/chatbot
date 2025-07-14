@@ -27,7 +27,7 @@ jobs:
             # Activate venv and install dependencies
             source .venv/bin/activate
             .venv/bin/pip install --upgrade pip
-            .venv/bin/pip install -r requirements.txt
+            pip install -r requirements.txt 
 
             # Restart using full path to pm2
             uvicorn app.main:app --reload
