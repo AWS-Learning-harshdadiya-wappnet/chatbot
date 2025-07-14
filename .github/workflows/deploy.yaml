@@ -19,8 +19,16 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd /home/ubuntu/AWS_TuTorial/chatbot
-          git pull origin main
-          source .venv/bin/activate
-          pip install -r requirements.txt
-          pm2 restart chatbot-app
+            # Create venv if it doesn't exist
+            if [ ! -d ".venv" ]; then
+              python3 -m venv .venv
+            fi
+
+            # Activate venv and install dependencies
+            source .venv/bin/activate
+            .venv/bin/pip install --upgrade pip
+            .venv/bin/pip install -r requirements.txt
+
+            # Restart using full path to pm2
+            export PATH=$PATH:/home/ubuntu/.npm-global/bin
+            pm2 restart chatbot-app
