@@ -21,6 +21,7 @@ jobs:
         script: |
 
             cd AWS_TuTorial/chatbot
+            git pull origin main
             # Create venv if it doesn't exist
             if [ ! -d ".venv" ]; then
               python3 -m venv .venv
