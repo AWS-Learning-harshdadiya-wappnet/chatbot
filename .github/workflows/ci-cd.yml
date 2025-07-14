@@ -5,13 +5,14 @@ on:
     branches: [ main ]
 
 env:
-  AWS_REGION: ap-south-1           # 🔄 change to your AWS region
+  AWS_REGION: ap-south-1b           # 🔄 change to your AWS region
   ECR_REPO: chatbot-demo
   APP_RUNNER_SERVICE: chatbot-demo-svc
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: ENV
     permissions:
       id-token: write               # GitHub → AWS OIDC
       contents: read
